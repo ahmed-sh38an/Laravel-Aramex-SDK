@@ -85,7 +85,11 @@ class Aramex
 
         if ($call->HasErrors){
             $ret->error = 1;
-            $ret->errors = $call->Notifications->Notification;
+            if (is_array($call->Notifications)) {
+                $ret->errors = $call->Notifications['Notification'];
+            } else {
+                $ret->errors = $call->Notifications->Notification;
+            }
         }
         else {
             $ret = $call;
