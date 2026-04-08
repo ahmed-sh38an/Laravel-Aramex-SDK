@@ -6,7 +6,7 @@ Open source Laravel SDK to integrate with Aramex API's.
 ## Installation 
 
 ``` bash
-composer require octw/aramex
+composer require ahmed-sh38an/aramex
 ```
 
   To publish the package and create config file `aramex.php` run this command
