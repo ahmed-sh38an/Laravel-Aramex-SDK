@@ -1,5 +1,5 @@
 {
-    "name": "octw/aramex",
+    "name": "ahmed-sh38an/aramex",
     "description": "A Library to integrate with Aramex APIs",
     "type": "package",
     "keywords": ["aramex", "sdk", "php", "laravel", "shipping", "integraton", "ship"],
