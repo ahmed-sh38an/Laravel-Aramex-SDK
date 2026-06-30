@@ -555,6 +555,26 @@ composer require ahmed-sh38an/laravel-aramex
   }
 }
 ```
+### Hold Shipments
+
+  Aramex's Shipping API has **no operation to delete/cancel an already-created shipment (AWB)**. The supported way to stop a shipment after it has been created is to put it on hold. If you only need to cancel the collection before the goods are picked up, cancel the pickup with `Aramex::cancelPickup($guid, $comment)` instead.<br />
+  `Aramex::holdShipments($arrayOfShipmentIds, $comments);` <br />
+  Pass an array of the created shipment IDs (`$createShipmentResults->Shipments->ProcessedShipment->ID`) and an optional comment describing why they are being held.<br />
+``` php
+        $shipments = [
+            $createShipmentResults->Shipments->ProcessedShipment->ID,
+            $anotherCreateShipmentResults->Shipments->ProcessedShipment->ID,
+        ];
+
+        $data = Aramex::holdShipments($shipments, 'Customer cancelled the order');
+
+        if (!$data->error){
+          // Code Here
+        }
+        else {
+        // handle error
+        }
+```
 ### Fetch Countries
 
   Fetching Aramex's Countries that is supported by Aramex and stored in their database. <br />
