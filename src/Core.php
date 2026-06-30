@@ -291,6 +291,21 @@ class Core
         $this->param['Shipments'] = $param;
     }
 
+    public function initializeHoldShipments($shipmentNumbers, $comments)
+    {
+        $holdDetails = [];
+        foreach ($shipmentNumbers as $shipmentNumber) {
+            $holdDetails[] = [
+                'ShipmentNumber' => $shipmentNumber,
+                'Comment'        => $comments,
+            ];
+        }
+
+        $this->param['ShipmentHolds'] = [
+            'ShipmentHoldDetails' => $holdDetails,
+        ];
+    }
+
     public function initializeFetchCountries($code = null)
     {
         if (isset($code))

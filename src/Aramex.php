@@ -7,22 +7,22 @@ use Octw\Aramex\Helpers\AramexHelper;
 use SoapClient;
 
 /**
-* The Package Interface that will be used in App\Http\ 
-*/
+ * The Package Interface that will be used in App\Http\ 
+ */
 class Aramex
 {
 
     /**
-    *
-    *  @param array of pickup parameters
-    *  @return object described in https://
-    */
+     *
+     *  @param array of pickup parameters
+     *  @return object described in https://
+     */
     public static function createPickup($param = [])
     {
         // Define an instance from the core class.
         $aramex = new Core;
         // Import SoapCLient object from Aramex's endpoint.
-        
+
         $soapClient = AramexHelper::getSoapClient(AramexHelper::SHIPPING);
 
 
@@ -31,27 +31,25 @@ class Aramex
         $pickupDetails = AramexHelper::extractPickupDetails($param);            // changeable
 
         // initialize pickup request.
-        $aramex->initializePickup($pickupDetails , $pickupAddress);
+        $aramex->initializePickup($pickupDetails, $pickupAddress);
 
         // call the SoapClient API.
         $call = $soapClient->CreatePickup($aramex->getParam());
-        
+
         $ret = new \stdClass;
         // check the response.
-        if ($call->HasErrors){
+        if ($call->HasErrors) {
 
             // prepare return object with errors described in call response.
             $ret->error = 1;
             // No one knows what is the structure of the response 
-            if (is_array($call->Notifications)){
+            if (is_array($call->Notifications)) {
                 $ret->errors = $call->Notifications['Notification'];
-            }
-            else {
+            } else {
                 $ret->errors = $call->Notifications->Notification;
             }
-        }
-        else {
-            
+        } else {
+
             // extract helpful data from call response.
             $pickupGUID = $call->ProcessedPickup->GUID;
             $pickupId = $call->ProcessedPickup->ID;
@@ -62,36 +60,34 @@ class Aramex
             $ret->error = 0;
             $ret->pickupGUID = $pickupGUID;
             $ret->pickupID   = $pickupId;
-            
         }
         // return the prepared object.
-        return $ret;    
+        return $ret;
     }
 
-    public static function cancelPickup($pickupGuid , $commnet)
+    public static function cancelPickup($pickupGuid, $commnet)
     {
         // Define an instance from the core class.
         $aramex = new Core;
-        
+
         // Import SoapCLient object from Aramex's endpoint. 
         $soapClient = AramexHelper::getSoapClient(AramexHelper::SHIPPING);
 
 
-        $aramex->initializePickupCancelation($pickupGuid , $commnet);
+        $aramex->initializePickupCancelation($pickupGuid, $commnet);
 
         $call = $soapClient->CancelPickup($aramex->getParam());
-        
+
         $ret = new \stdClass;
 
-        if ($call->HasErrors){
+        if ($call->HasErrors) {
             $ret->error = 1;
             if (is_array($call->Notifications)) {
                 $ret->errors = $call->Notifications['Notification'];
             } else {
                 $ret->errors = $call->Notifications->Notification;
             }
-        }
-        else {
+        } else {
             $ret = $call;
         }
         return $ret;
@@ -99,11 +95,11 @@ class Aramex
 
 
     /**
-    *
-    * @param array of shipment parameters 
-    * @return object described in https://
-    **/
-    public static function createShipment($param =[])
+     *
+     * @param array of shipment parameters 
+     * @return object described in https://
+     **/
+    public static function createShipment($param = [])
     {
         // Define an instance from the core class.
         $aramex = new Core;
@@ -119,25 +115,21 @@ class Aramex
         $aramex->initializeShipment($shipperAddress, $consigneeAddress, $shipmentDetails);
 
         $call =  $soapClient->CreateShipments($aramex->getParam());
-       
+
         $ret = new \stdClass;
 
         if ($call->HasErrors) {
             $ret->error = 1;
-            if (isset($call->Notifications->Notification))
-            {
+            if (isset($call->Notifications->Notification)) {
                 $ret->errors = [$call->Notifications->Notification];
             }
 
-            if (is_object($call->Shipments->ProcessedShipment->Notifications->Notification))
-            {
-                $ret->errors = [ $call->Shipments->ProcessedShipment->Notifications->Notification ];
-            }
-            else {
+            if (is_object($call->Shipments->ProcessedShipment->Notifications->Notification)) {
+                $ret->errors = [$call->Shipments->ProcessedShipment->Notifications->Notification];
+            } else {
                 $ret->errors = $call->Shipments->ProcessedShipment->Notifications->Notification;
             }
-        }
-        else{
+        } else {
             $ret = $call;
         }
 
@@ -146,7 +138,7 @@ class Aramex
 
 
 
-    public static function calculateRate($origin , $destination , $shipmentDetails , $currency)
+    public static function calculateRate($origin, $destination, $shipmentDetails, $currency)
     {
 
         $aramex = new Core;
@@ -160,7 +152,7 @@ class Aramex
 
         $details = AramexHelper::extractCalculateRateShipmentDetails($shipmentDetails);
 
-        $aramex->initializeCalculateRate($originAddress, $destinationAddress, $details , $currency);
+        $aramex->initializeCalculateRate($originAddress, $destinationAddress, $details, $currency);
 
         $call =  $soapClient->calculateRate($aramex->getParam());
 
@@ -169,26 +161,22 @@ class Aramex
         if ($call->HasErrors) {
             $ret->error = 1;
             $ret->errors = $call->Notifications;
-        }
-        else{
+        } else {
             $ret = $call;
         }
 
         return $ret;
-
     }
 
 
     public static function trackShipments($param)
     {
-        if (!is_array($param))
-        {
+        if (!is_array($param)) {
             throw new \Exception("trackShipments Parameter Should Be an Array includes Strings", 1);
         }
 
         foreach ($param as $shipmentId) {
-            if (!is_string($shipmentId))
-            {
+            if (!is_string($shipmentId)) {
                 throw new \Exception("trackShipments Parameter Should Be an Array includes Strings", 1);
             }
         }
@@ -201,14 +189,82 @@ class Aramex
         $aramex->initializeShipmentTracking($param);
 
         $call = $soapClient->TrackShipments($aramex->getParam());
-        
+
         $ret = new \stdClass;
 
         if ($call->HasErrors) {
             $ret->error = 1;
             $ret->errors = $call->Notifications;
+        } else {
+            $ret = $call;
         }
-        else{
+
+        return $ret;
+    }
+
+
+    /**
+     * Put one or more already-created shipments on hold.
+     *
+     * Aramex's Shipping API has no operation to delete/cancel a created AWB;
+     * HoldShipments is the supported way to stop a shipment after creation.
+     * To cancel before collection, cancel the pickup via cancelPickup() instead.
+     *
+     * @param array $shipmentNumbers array of shipment (AWB) numbers as strings
+     * @param string $comments reason for holding the shipment(s)
+     */
+    public static function holdShipments($shipmentNumbers, $comments = '')
+    {
+        if (!is_array($shipmentNumbers)) {
+            throw new \Exception("holdShipments Parameter Should Be an Array includes Strings", 1);
+        }
+
+        foreach ($shipmentNumbers as $shipmentId) {
+            if (!is_string($shipmentId)) {
+                throw new \Exception("holdShipments Parameter Should Be an Array includes Strings", 1);
+            }
+        }
+
+        $soapClient = AramexHelper::getSoapClient(AramexHelper::SHIPPING);
+
+        $aramex = new Core;
+
+        $aramex->initializeHoldShipments($shipmentNumbers, $comments);
+
+        $call = $soapClient->HoldShipments($aramex->getParam());
+
+        $ret = new \stdClass;
+
+        if ($call->HasErrors) {
+            $ret->error = 1;
+            $ret->errors = [];
+
+            // Request-level errors live in the top-level Notifications.
+            if (isset($call->Notifications->Notification)) {
+                $notifications = $call->Notifications->Notification;
+                $ret->errors = array_merge($ret->errors, is_array($notifications) ? $notifications : [$notifications]);
+            }
+
+            // Per-shipment errors live inside each ProcessedShipmentHold.
+            if (isset($call->ProcessedShipmentHolds->ProcessedShipmentHold)) {
+                $holds = $call->ProcessedShipmentHolds->ProcessedShipmentHold;
+                $holds = is_array($holds) ? $holds : [$holds];
+
+                foreach ($holds as $hold) {
+                    if (empty($hold->HasErrors) || !isset($hold->Notifications->Notification)) {
+                        continue;
+                    }
+
+                    $holdNotifications = $hold->Notifications->Notification;
+                    $holdNotifications = is_array($holdNotifications) ? $holdNotifications : [$holdNotifications];
+
+                    foreach ($holdNotifications as $notification) {
+                        $notification->ShipmentNumber = $hold->ID ?? null;
+                        $ret->errors[] = $notification;
+                    }
+                }
+            }
+        } else {
             $ret = $call;
         }
 
@@ -220,23 +276,22 @@ class Aramex
     {
 
         $soapClient = AramexHelper::getSoapClient(AramexHelper::LOCATION);
-        
+
         $aramex = new Core;
 
         $aramex->initializeFetchCountries($code);
 
         if (isset($code))
             $call = $soapClient->FetchCountry($aramex->getParam());
-        else 
+        else
             $call = $soapClient->FetchCountries($aramex->getParam());
 
         $ret = new \stdClass;
 
         if ($call->HasErrors) {
             $ret->error = 1;
-            $ret->errors = $call->Notification;                
-        }
-        else{
+            $ret->errors = $call->Notification;
+        } else {
             $ret = $call;
         }
 
@@ -252,19 +307,18 @@ class Aramex
         $aramex->initializeFetchCities($code, $nameStartWith);
 
         $call = $soapClient->FetchCities($aramex->getParam());
-        
+
         $ret = new \stdClass;
 
         if ($call->HasErrors) {
             $ret->error = 1;
             $ret->errors = $call->Notifications;
-        }
-        else{
+        } else {
             $ret = $call;
         }
 
         return $ret;
-    } 
+    }
 
     public static function validateAddress($address)
     {
@@ -283,11 +337,10 @@ class Aramex
         if ($call->HasErrors) {
             $ret->error = 1;
             $ret->errors = $call->Notifications;
-        }
-        else{
+        } else {
             $ret = $call;
         }
 
         return $ret;
-    } 
-}   
+    }
+}
