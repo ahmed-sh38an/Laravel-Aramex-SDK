@@ -77,7 +77,7 @@ class Core
                     'AccountNumber' => $this->accNum,
                     'Contact'       => [
                         'PersonName'            => $shipper->PersonName,
-                        'CompanyName'           => config('aramex.company_name'),
+                        'CompanyName'           => config('aramex.CompanyName'),
                         'PhoneNumber1'          => $shipper->PhoneNumber1,
                         'CellPhone'             => $shipper->CellPhone,
                         'EmailAddress'          => $shipper->EmailAddress,
@@ -148,8 +148,7 @@ class Core
 
                     'CashOnDeliveryAmount'  => [
                         'Value'         => $details->CashOnDeliveryAmount,
-                        'CurrencyCode'  => 'USD'
-                        // 'CurrencyCode'  => $details->CurrencyCode
+                        'CurrencyCode'  => $details->CurrencyCode
                     ],
 
                     'InsuranceAmount'       => [

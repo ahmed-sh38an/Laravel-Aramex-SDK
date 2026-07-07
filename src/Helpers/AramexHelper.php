@@ -134,7 +134,7 @@ class AramexHelper
         $addresDetails->ZipCode = isset($param['shipper']['zip_code']) ? $param['shipper']['zip_code'] : '';
 
         $addresDetails->Line1 = $param['shipper']['line1'];
-        $addresDetails->Line2 = $param['shipper']['line2'];
+        $addresDetails->Line2 = $param['shipper']['line2'] ?? '';
         $addresDetails->Line3 = isset($param['shipper']['line3']) ? $param['shipper']['line3'] : '';
 
         return $addresDetails;
